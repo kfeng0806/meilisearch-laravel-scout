@@ -44,7 +44,7 @@ class MeilisearchEngine extends Engine
             return;
         }
 
-        $index = $this->meilisearch->index($models->first()->searchableAs());
+        $index = $this->meilisearch->getOrCreateIndex($models->first()->searchableAs(), ['primaryKey' => $models->first()->getKeyName()]);
 
         if ($this->usesSoftDelete($models->first()) && $this->softDelete) {
             $models->each->pushSoftDeleteMetadata();
@@ -89,8 +89,9 @@ class MeilisearchEngine extends Engine
     public function search(Builder $builder)
     {
         return $this->performSearch($builder, array_filter([
-            'filters' => $this->filters($builder),
+            'filter' => $this->filters($builder),
             'limit' => $builder->limit,
+            'sort' => ['modifiedAt:desc', 'id:desc'],
         ]));
     }
 
@@ -105,9 +106,10 @@ class MeilisearchEngine extends Engine
     public function paginate(Builder $builder, $perPage, $page)
     {
         return $this->performSearch($builder, array_filter([
-            'filters' => $this->filters($builder),
+            'filter' => $this->filters($builder),
             'limit' => (int) $perPage,
             'offset' => ($page - 1) * $perPage,
+            'sort' => ['modifiedAt:desc', 'id:desc'],
         ]));
     }
 
@@ -200,7 +202,7 @@ class MeilisearchEngine extends Engine
      */
     public function getTotalCount($results)
     {
-        return $results['nbHits'];
+        return $results['estimatedTotalHits'];
     }
 
     /**
