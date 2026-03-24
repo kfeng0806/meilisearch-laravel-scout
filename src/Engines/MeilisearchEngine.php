@@ -92,6 +92,7 @@ class MeilisearchEngine extends Engine
             'filter' => $this->filters($builder),
             'limit' => $builder->limit,
             'sort' => ['modifiedAt:desc', 'id:desc'],
+            'matchingStrategy' => 'all',
         ]));
     }
 
@@ -110,6 +111,7 @@ class MeilisearchEngine extends Engine
             'limit' => (int) $perPage,
             'offset' => ($page - 1) * $perPage,
             'sort' => ['modifiedAt:desc', 'id:desc'],
+            'matchingStrategy' => 'all',
         ]));
     }
 
